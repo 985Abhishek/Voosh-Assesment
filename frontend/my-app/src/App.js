@@ -1,26 +1,19 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
-import PrivateRoute from './components/PrivateRoute';
-import { AuthProvider } from './context/AuthContext';
-
+import './App.css';
+import Filterbar from './components/Filterbar';
+import Navbar from '../src/components/Navbar';
+import  {TaskProvider}  from './context/TaskContext'
+import Tasks from "./components/TaskList"
+ 
 function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignupPage />} />
-          <Route 
-            path="/" 
-            element={<PrivateRoute><HomePage /></PrivateRoute>} 
-          />
-        </Routes>
-      </Router>
-    </AuthProvider>
-  );
+    return (
+        <>
+            <TaskProvider>
+                <Navbar />
+                <Filterbar />
+                <Tasks />
+            </TaskProvider>
+        </>
+    );
 }
-
+ 
 export default App;

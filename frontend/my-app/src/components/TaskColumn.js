@@ -1,26 +1,58 @@
-import React from 'react';
-import { useDrop } from 'react-dnd';
-import TaskCard from './TaskCard';
-import {useTasks} from '../hooks/useTasks';
+// frontend/src/components/Column.js
+import React, { useEffect, useState } from 'react';
+import Task from './Task';
+import axios from 'axios';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
-const TaskColumn = ({ status }) => {
-  const { tasks, moveTask } = useTasks();
+const Column = ({ status }) => {
+  const [tasks, setTasks] = useState([]);
 
-  const [, drop] = useDrop({
-    accept: 'TASK',
-    drop: (item) => moveTask(item.id, status),
-  });
+  useEffect(() => {
+    axios.get(`/api/tasks?status=${status}`).then((response) => {
+      setTasks(response.data);
+    });
+  }, [status]);
 
-  const filteredTasks = tasks.filter((task) => task.status === status);
+  const onDragEnd = (result) => {
+    if (!result.destination) return;
+
+    const updatedTasks = Array.from(tasks);
+    const [movedTask] = updatedTasks.splice(result.source.index, 1);
+    updatedTasks.splice(result.destination.index, 0, movedTask);
+
+    setTasks(updatedTasks);
+    axios.put(`/api/tasks/${movedTask._id}`, { status: result.destination.droppableId });
+  };
 
   return (
-    <div ref={drop} className="task-column">
-      <h2>{status}</h2>
-      {filteredTasks.map((task) => (
-        <TaskCard key={task._id} task={task} />
-      ))}
-    </div>
+    <DragDropContext onDragEnd={onDragEnd}>
+      <Droppable droppableId={status}>
+        {(provided) => (
+          <div
+            className="column"
+            {...provided.droppableProps}
+            ref={provided.innerRef}
+          >
+            <h2>{status}</h2>
+            {tasks.map((task, index) => (
+              <Draggable key={task._id} draggableId={task._id} index={index}>
+                {(provided) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                  >
+                    <Task task={task} />
+                  </div>
+                )}
+              </Draggable>
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
+    </DragDropContext>
   );
 };
 
-export default TaskColumn;
+export default Column;

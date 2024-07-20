@@ -8,10 +8,10 @@ function Signup() {
   const [password, setPassword] = useState('');
   const { signup } = useAuth();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit =  (e) => {
     e.preventDefault();
-    await signup({ firstName, lastName, email, password });
-  };
+     signup({ firstName, lastName, email, password });
+  }
 
   return (
     <div>
